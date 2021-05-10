@@ -16,10 +16,10 @@ namespace Assets._Scripts.Client
 
         private bool _isInputNameUser = true;
         static string _userName;
-        private const string host = "127.0.0.1";
-        private const int port = 8888;
-        static TcpClient client;
-        static NetworkStream stream;
+        private const string Host = "127.0.0.1";
+        private const int Port = 8888;
+        static TcpClient _client;
+        static NetworkStream _stream;
         
 
         private void Start()
@@ -55,15 +55,15 @@ namespace Assets._Scripts.Client
 
         private void Connection()
         {
-            client = new TcpClient();
+            _client = new TcpClient();
             try
             {
-                client.Connect(host, port); //подключение клиента
+                _client.Connect(Host, Port); //подключение клиента
                 
-                stream = client.GetStream(); // получаем поток
+                _stream = _client.GetStream(); // получаем поток
                 
                 byte[] data = Encoding.Unicode.GetBytes(_userName);
-                stream.Write(data, 0, data.Length);
+                _stream.Write(data, 0, data.Length);
 
                 // запускаем новый поток для получения данных
                 
@@ -81,11 +81,7 @@ namespace Assets._Scripts.Client
                 Time.timeScale = 0;
             }
         }
-
-        private static void Log(string v)
-        {
-            throw new NotImplementedException();
-        }
+        
 
         // отправка сообщений
         void SendMessage()
@@ -96,7 +92,7 @@ namespace Assets._Scripts.Client
             {
                 string message = _inputField.text;
                 byte[] data = Encoding.Unicode.GetBytes(message);
-                stream.Write(data, 0, data.Length);
+                _stream.Write(data, 0, data.Length);
             }
         }
         // получение сообщений
@@ -111,10 +107,10 @@ namespace Assets._Scripts.Client
                     int bytes = 0;
                     do
                     {
-                        bytes = stream.Read(data, 0, data.Length);
+                        bytes = _stream.Read(data, 0, data.Length);
                         builder.Append(Encoding.Unicode.GetString(data, 0, bytes));
                     }
-                    while (stream.DataAvailable);
+                    while (_stream.DataAvailable);
 
                     string message = builder.ToString();
                     _viewText.text += message + "\n";//вывод сообщения
@@ -129,10 +125,10 @@ namespace Assets._Scripts.Client
 
         static void Disconnect()
         {
-            if (stream != null)
-                stream.Close();//отключение потока
-            if (client != null)
-                client.Close();//отключение клиента
+            if (_stream != null)
+                _stream.Close();//отключение потока
+            if (_client != null)
+                _client.Close();//отключение клиента
             Environment.Exit(0); //завершение процесса
         }
 
